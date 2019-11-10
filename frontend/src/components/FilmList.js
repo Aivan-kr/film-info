@@ -15,9 +15,9 @@ export const FilmList = connect(mapStateToProps, {deleteData})(props => {
         if(films){
             let list = [...films].sort((a, b) => {
                 if(a.title.toLowerCase() > b.title.toLowerCase())
-                return 1
+                    return 1
                 if(a.title.toLowerCase() < b.title.toLowerCase())
-                return -1
+                    return -1
                 return 0    
             });
             setFilmList(list.map(el => 
@@ -29,7 +29,7 @@ export const FilmList = connect(mapStateToProps, {deleteData})(props => {
 
     const Film = props => (
         <div className="row d-flex align-items-center">
-            <Link to={`/film/${props.id}`} className="col-9 ac">{props.title}</Link>
+            <Link to={`/film/${props.id}`} className="col-9">{props.title}</Link>
             <button className="col-3 btn btn-danger" onClick={() => deleteData(props.id)}>Delete</button>
         </div>
     )

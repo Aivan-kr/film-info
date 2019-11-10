@@ -2,7 +2,9 @@ import React from 'react';
 import {Provider} from 'react-redux';
 import {BrowserRouter as Router, Switch, Route} from 'react-router-dom';
 import './App.css';
+import 'jquery/dist/jquery.min.js';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import {Header, FilmList, FilmInfo, NewFilm} from './components';
 import store, { fetchData } from './store';
 

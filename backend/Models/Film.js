@@ -1,11 +1,23 @@
-const mongoose = require('mongoose');
+const mongoose = require('../database');
 const Schema = mongoose.Schema;
 
-const Film = new Schema({
-    title: String,
-    year: String,
-    format: String,
-    stars: String
+const schema = new Schema({
+    title: {
+        type: String,
+        required: [true , 'Title required']
+    },
+    year: {
+        type: String,
+        required: [true , 'Year required']
+    },
+    format: {
+        type: String,
+        required: [true , 'Format required']
+    },
+    stars: {
+        type: String,
+        required: [true , 'Stars required']
+    }
 })
 
-module.exports = mongoose.model('Film', Film);
+module.exports = mongoose.model("Film" , schema);
