@@ -19,5 +19,4 @@ const schema = new Schema({
         required: [true , 'Stars required']
     }
 })
-
 module.exports = mongoose.model("Film" , schema);
