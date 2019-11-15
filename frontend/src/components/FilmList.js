@@ -12,14 +12,11 @@ export const FilmList = connect(mapStateToProps, {deleteData})(props => {
     const [filmList, setFilmList] = useState([]);
 
     useEffect(() => {
-        if(films){
-            let list = [...films].sort((a, b) => {
-                if(a.title.toLowerCase() > b.title.toLowerCase())
-                    return 1
-                if(a.title.toLowerCase() < b.title.toLowerCase())
-                    return -1
-                return 0    
-            });
+        if(films.length === 0){
+            const emptyList = <li className="list-group-item">Nothng found</li>
+            setFilmList(emptyList)
+        }else{
+            let list = [...films].sort((a, b) => a.title.localeCompare(b.title));
             setFilmList(list.map(el => 
                 <li key={el._id} className="list-group-item">
                     <Film id={el._id} title={el.title} />

@@ -1,30 +1,27 @@
 const fs = require('fs');
 const path = require('path');
+const readline = require('readline');
 
 module.exports = (filePath , callback) => {
     let result = path.join(__dirname , ".." , filePath);
+    
+    let readInterface = readline.createInterface({
+        input: fs.createReadStream(result),
+        crlfDelay: Infinity
+    })
 
-    fs.readFile(result, (err, data) => {
-        if(err){
-            return callback(err);
-        }
+    let list = [];
+    let flag = 0;
 
-        data = data.toString().split('\r\n');
-        let list = [];
-        let flag = 0;
-
-        for (let i = 0; i < data.length; i++) {
-            let value = data[i];
-
-            if (!value) {
-                flag += 1;
-                continue;
-            }
-            
-            let [key, body] = value.split(":");
-
+    readInterface.on('line', (line) => {
+        if (!line) {
+            flag += 1;
+        }else{
+            let [key, body] = line.split(":");
             if (list[flag]) {
                 key = key.toLowerCase();
+                if (key === "stars") 
+                    body = [...new Set(body.split(','))].join(',');
                 list[flag][key === "release year" ? "year" : key] = body.trim();
             } else {
                 list.push({
@@ -32,7 +29,8 @@ module.exports = (filePath , callback) => {
                 })
             }
         }
-
+    })
+    .on('close', () => {
         callback(null , list);
     })
 }

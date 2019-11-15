@@ -5,7 +5,7 @@ import './App.css';
 import 'jquery/dist/jquery.min.js';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-import {Header, FilmList, FilmInfo, NewFilm} from './components';
+import {Header, FilmList, FilmInfo, NewFilm, MessageBox} from './components';
 import store, { fetchData } from './store';
 
 function App() {
@@ -21,6 +21,7 @@ function App() {
             <Route path="/create" component={NewFilm} />
           </Switch>
         </main>
+        <MessageBox />
       </Router>
     </Provider>
   );

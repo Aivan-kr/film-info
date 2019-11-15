@@ -1,4 +1,4 @@
-import {createStore, applyMiddleware, compose} from 'redux';
+import {createStore, applyMiddleware, combineReducers, compose} from 'redux';
 import createSagaMiddleware from 'redux-saga';
 import {take, put, all} from 'redux-saga/effects';
 import axios from 'axios';
@@ -14,6 +14,9 @@ const SET_ALL = 'SET_ALL';
 const SET_ONE = 'SET_ONE';
 const SET_MANY = 'SET_MANY';
 const DELETE_ONE = 'DELETE_ONE';
+
+const SET_MESSAGE = 'SET_MESSAGE';
+const RESET_MESSAGE = 'RESET_MESSAGE';
 
 // actions
 export const addData = data => ({
@@ -38,32 +41,60 @@ export const deleteData = id => ({
 export const searchData = search => ({
     type: SEARCH_DATA,
     search
+});
+
+export const resetMessage = () => ({
+    type: RESET_MESSAGE
+})
+
+export const setMessage = message => ({
+    type: SET_MESSAGE,
+    payload: message
 })
 
 // Sagas
 function* addDataSaga(){
     while (true) {
-        const {data} = yield take(ADD_DATA);
-        const response = yield axios.post("/films", data);
-        if(response.status === 200)
-            yield put({
-                type: SET_ONE,
-                payload: response.data
-            })
+        try{
+            const {data} = yield take(ADD_DATA);
+            const response = yield axios.post("/films", data);
+            
+            if(response.status === 200){
+                yield put({
+                    type: SET_ONE,
+                    payload: response.data
+                })
+            }else{
+                throw response
+            }
+        }catch(error){
+            yield put(setMessage(error.response.data))
+        }
     }
 }
 
 function* addMultipleDataSaga(){
     while (true) {
-        const {data} = yield take(ADD_MULTIPLE_DATA);
-        const response = yield axios.post("/films/upload", data, { 
-            headers: {'Accept': 'application/json'} 
-        });
-        if(response.status === 200)
-            yield put({
-                type: SET_MANY,
-                payload: response.data
-            })
+        try{
+            const {data} = yield take(ADD_MULTIPLE_DATA);
+            const response = yield axios.post("/films/upload", data, { 
+                headers: {'Accept': 'application/json'} 
+            });
+            if(response.status === 200){
+                yield put({
+                    type: SET_MANY,
+                    payload: response.data
+                })
+            }else{
+                throw response
+            }
+        }catch(error){
+            let message = error.response.data.map(el => `"${el.title}"`).join(', ');
+            yield all([
+                put(setMessage(`Info about ${message} is already exists.`)),
+                put(fetchData())
+                ])
+        }
     }
 }
 
@@ -83,10 +114,13 @@ function* deleteDataSaga() {
         const {id} = yield take(DELETE_DATA);
         const response = yield axios.delete(`/films/${id}`);
         if(response.status === 200)
-            yield put({
-                type: DELETE_ONE,
-                payload: id
-            })
+            yield all([
+                put({
+                    type: DELETE_ONE,
+                    payload: id
+                }),
+                put(setMessage('Film deleted'))
+            ])
     }
 }
 
@@ -106,40 +140,46 @@ function* rootSaga() {
 }
 
 const initialState = {
-    films: []
+    films: [],
+    message: ''
 };
 
-function fetchReducer(state = initialState, action) {
+function filmReducer(state = initialState.films, action) {
   const {type, payload} = action;
   switch (type) {
     case SET_ALL:
-        return {
-            ...state,
-            films: payload
-      };
+        return [...payload];
     case SET_ONE:
-        return {
-            ...state,
-            films: [...state.films, payload]
-        };
+        return [...state, payload];
     case SET_MANY:
-        return {
-            ...state,
-            films: [...state.films, ...payload]
-        };
+        return [...state, ...payload];
     case DELETE_ONE:
-        return {
-            ...state,
-            films: state.films.filter(el => el._id !== payload)
-        }
+        return state.filter(el => el._id !== payload);
     default:
       return state;
   }
 }
 
+function messageReducer(state = initialState.message, action) {
+    const {type, payload} = action;
+    switch (type) {
+        case SET_MESSAGE:
+            return payload;
+        case RESET_MESSAGE:
+            return "";
+        default:
+            return state; 
+    }
+}
+
+const reducer = combineReducers({
+    films: filmReducer,
+    message: messageReducer
+})
+
 const saga = createSagaMiddleware();
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-const store = createStore(fetchReducer, composeEnhancers(applyMiddleware(saga)));
+const store = createStore(reducer, composeEnhancers(applyMiddleware(saga)));
 
 saga.run(rootSaga);
 

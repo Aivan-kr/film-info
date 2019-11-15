@@ -14,13 +14,14 @@ exports.post = (req, res) => {
         if(err){
             return res.status(400).send("Failed to parse file");
         }
-
-        Film.insertMany(list, (err, list) => {
+        Film.insertMany(list, {ordered: false}, (err, response) => {
             if(err){
-                return res.status(400).send("Failed to update DB");
+                console.log(list);
+                let dub = err.result.result.writeErrors.map(({err}) => err.op);
+                return res.status(400).json(dub);
             }
 
-            res.json(list);
+            res.json(response);
         });
     })    
 }

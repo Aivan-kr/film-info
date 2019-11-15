@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {Redirect} from 'react-router-dom';
 import {connect} from 'react-redux';
-import {addData, addMultipleData} from './../../store';
+import {addData, addMultipleData, setMessage} from './../../store';
 import {Form} from './Form';
 import {FileUpload} from './FileUpload';
 
@@ -9,11 +9,20 @@ const mapStateToProps = state => ({
     films: state.films
 })
 
-export const NewFilm = connect(mapStateToProps, {addData, addMultipleData})(props => {
+export const NewFilm = connect(mapStateToProps, {addData, addMultipleData, setMessage})(props => {
     const [redirect, setRedirect] = useState(false);
-    const {addData, addMultipleData, films} = props;
+    const {addData, addMultipleData, setMessage, films} = props;
     const [length] = useState(films.length);
-    const submitHandler = (data) => addData(data);
+    const submitHandler = data => {
+        const findDuplicates = arr => arr.filter((el, i) => arr.indexOf(el) !== i);
+        const duplicates = findDuplicates(data.stars.split(','));
+
+        if(duplicates.length > 0){
+            setMessage(`Can't add repeating actors: ${duplicates}`)
+        }else{
+            addData(data);
+        }
+    };
     useEffect(() => {
         if(films.length !== length){
             setRedirect(true)
