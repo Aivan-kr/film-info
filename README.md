@@ -27,18 +27,19 @@ A step by step series of examples that tell you have to get a development env ru
 ```
 git clone https://github.com/Aivan-kr/film-info.git
 ```
-3. Install node
+2. Install node
 * [NodeJS](https://nodejs.org/)
 
-2. Install mongodb and run mongo server
+
+3. Install mongodb and run mongo server
 * [MongoDB](https://docs.mongodb.com/manual/installation/)
 
-3. Move into the frontend folder and install dependencies:
+4. Move into the frontend folder and install dependencies:
 ```
 cd frontend
 npm i
 ```
-4. Move into the backend folder, install dependencies and run server:
+5. Move into the backend folder and install dependencies:
 ```
 cd backend
 npm i
